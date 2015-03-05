@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+
+<configuration scan="true" scanPeriod="10 seconds">
+  <appender name="CONSOLE" class="ch.qos.logback.core.ConsoleAppender">
+    <encoder>
+      <pattern>%d{HH:mm:ss.SSS} [%thread] [%-5level] \(%logger{36}#%M:%line\) - %msg%n </pattern>
+    </encoder>
+  </appender>
+
+  <logger name="org.eclipse.jetty" level="WARN" />
+
+  <!-- SAAJ logger veldig mye på ERROR, som vi ikke ønsker. Slår derfor denne av, da det vi trenger mest kommer tilbake uansett 
+    som exceptions. -->
+  <logger name="javax.xml.messaging.saaj" level="OFF" />
+
+  <root level="INFO">
+    <appender-ref ref="CONSOLE" />
+  </root>
+</configuration>

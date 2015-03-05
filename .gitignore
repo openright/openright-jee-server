@@ -1,0 +1,20 @@
+# /
+.classpath
+.project
+.settings
+target
+/.idea
+*.log
+*.log.*
+*.iml
+/atlassian-ide-plugin.xml
+
+# /conf/
+/conf
+/bin
+bin
+
+pom.xml.tag
+pom.xml.releaseBackup
+pom.xml.next
+release.properties

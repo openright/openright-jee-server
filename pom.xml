@@ -1,0 +1,256 @@
+<?xml version="1.0"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+  <modelVersion>4.0.0</modelVersion> 
+ 
+  <parent>
+		<groupId>net.openright</groupId>
+		<artifactId>master</artifactId>
+		<version>0.1.0-SNAPSHOT</version>
+  </parent>
+	
+  <groupId>net.openright.jee.server</groupId>
+  <artifactId>openright-jee-server-parent</artifactId>
+  <version>0.1.0-SNAPSHOT</version>
+  <name>OpenRight JEE Server Parent</name>
+  <packaging>pom</packaging>
+
+  <modules>
+    <module>util</module>
+	<module>webapp</module>
+	<module>status-webapp</module>
+	<module>server</module>
+  </modules>
+
+  <dependencyManagement>
+  
+  <dependencies>
+	
+	<!-- Own module dependencies -->	
+	<dependency>
+      <groupId>net.openright.jee.server</groupId>
+      <artifactId>openright-jee-server-util</artifactId>
+	  <version>0.1.0-SNAPSHOT</version>
+	  <type>jar</type>
+    </dependency>
+
+    <dependency>
+      <groupId>net.openright.jee.server</groupId>
+      <artifactId>openright-jee-server-util</artifactId>
+	  <version>0.1.0-SNAPSHOT</version>
+	  <classifier>tests</classifier>
+	  <scope>test</scope>
+    </dependency>
+	
+	<dependency>
+      <groupId>net.openright.jee.server</groupId>
+      <artifactId>openright-jee-webapp</artifactId>
+	  <version>0.1.0-SNAPSHOT</version>
+	  <type>jar</type>
+    </dependency>
+
+    <dependency>
+      <groupId>net.openright.jee.server</groupId>
+      <artifactId>openright-jee-webapp</artifactId>
+	  <version>0.1.0-SNAPSHOT</version>
+	  <classifier>tests</classifier>
+	  <scope>test</scope>
+    </dependency>
+	
+	<dependency>
+      <groupId>net.openright.jee.server</groupId>
+      <artifactId>openright-jee-status-webapp</artifactId>
+	  <version>0.1.0-SNAPSHOT</version>
+	  <type>war</type>
+    </dependency>
+
+	<dependency>
+      <groupId>net.openright.jee.server</groupId>
+      <artifactId>openright-jee-status-webapp</artifactId>
+	  <version>0.1.0-SNAPSHOT</version>
+	  <type>jar</type>
+    </dependency>
+	
+	<dependency>
+      <groupId>net.openright.jee.server</groupId>
+      <artifactId>openright-jee-status-webapp</artifactId>
+	  <version>0.1.0-SNAPSHOT</version>
+	  <classifier>classes</classifier>
+	  <type>jar</type>
+    </dependency>
+
+	
+    <dependency>
+      <groupId>net.openright.jee.server</groupId>
+      <artifactId>openright-jee-status-webapp</artifactId>
+	  <version>0.1.0-SNAPSHOT</version>
+	  <classifier>tests</classifier>
+	  <scope>test</scope>
+    </dependency>
+
+	<dependency>
+      <groupId>net.openright.jee.server</groupId>
+      <artifactId>openright-jee-server</artifactId>
+	  <version>0.1.0-SNAPSHOT</version>
+	  <type>jar</type>
+    </dependency>
+
+    <dependency>
+      <groupId>net.openright.jee.server</groupId>
+      <artifactId>openright-jee-server</artifactId>
+	  <version>0.1.0-SNAPSHOT</version>
+	  <classifier>tests</classifier>
+	  <scope>test</scope>
+    </dependency>
+	
+	<!-- JavaEE Web Profile Specs -->
+	<dependency>
+		<groupId>javax.servlet</groupId>
+		<artifactId>javax.servlet-api</artifactId>
+		<version>${javax.servlet.version}</version>
+	</dependency>
+
+	<!-- Jetty dependencies -->
+      <dependency>
+        <groupId>org.eclipse.jetty</groupId>
+        <artifactId>jetty-server</artifactId>
+        <version>${jetty.version}</version>
+      </dependency>
+
+      <dependency>
+        <groupId>org.eclipse.jetty</groupId>
+        <artifactId>jetty-util</artifactId>
+        <version>${jetty.version}</version>
+      </dependency>
+
+      <dependency>
+        <groupId>org.eclipse.jetty</groupId>
+        <artifactId>jetty-http</artifactId>
+        <version>${jetty.version}</version>
+      </dependency>
+
+      <dependency>
+        <groupId>org.eclipse.jetty</groupId>
+        <artifactId>jetty-rewrite</artifactId>
+        <version>${jetty.version}</version>
+      </dependency>
+
+	  <dependency>
+        <groupId>org.eclipse.jetty</groupId>
+        <artifactId>jetty-proxy</artifactId>
+        <version>${jetty.version}</version>
+      </dependency>
+	  
+      <dependency>
+        <groupId>org.eclipse.jetty</groupId>
+        <artifactId>jetty-jndi</artifactId>
+        <exclusions>
+          <exclusion>
+            <groupId>javax.mail</groupId>
+            <artifactId>mail</artifactId>
+          </exclusion>
+          <exclusion>
+            <groupId>org.eclipse.jetty.orbit</groupId>
+            <artifactId>javax.mail.glassfish</artifactId>
+          </exclusion>
+        </exclusions>
+        <version>${jetty.version}</version>
+      </dependency>
+	  
+	  <dependency>
+        <groupId>org.eclipse.jetty</groupId>
+        <artifactId>jetty-plus</artifactId>
+        <version>${jetty.version}</version>
+      </dependency>
+	  
+	  <dependency>
+        <groupId>org.eclipse.jetty</groupId>
+        <artifactId>jetty-annotations</artifactId>
+        <version>${jetty.version}</version>
+      </dependency>
+	  
+      <dependency>
+        <groupId>org.eclipse.jetty</groupId>
+        <artifactId>jetty-io</artifactId>
+        <version>${jetty.version}</version>
+      </dependency>
+
+      <dependency>
+        <groupId>org.eclipse.jetty</groupId>
+        <artifactId>jetty-webapp</artifactId>
+        <version>${jetty.version}</version>
+      </dependency>
+
+      <dependency>
+        <groupId>org.eclipse.jetty</groupId>
+        <artifactId>jetty-servlet</artifactId>
+        <version>${jetty.version}</version>
+      </dependency>
+
+      <dependency>
+        <groupId>org.eclipse.jetty</groupId>
+        <artifactId>jetty-servlets</artifactId>
+        <version>${jetty.version}</version>
+      </dependency>
+
+      <dependency>
+        <groupId>org.eclipse.jetty</groupId>
+        <artifactId>jetty-security</artifactId>
+        <version>${jetty.version}</version>
+      </dependency>
+
+     <dependency>
+        <groupId>org.eclipse.jetty</groupId>
+        <artifactId>jetty-continuation</artifactId>
+        <version>${jetty.version}</version>
+     </dependency>
+
+     <dependency>
+        <groupId>org.eclipse.jetty</groupId>
+        <artifactId>jetty-xml</artifactId>
+        <version>${jetty.version}</version>
+    </dependency>
+
+     <dependency>
+        <groupId>org.eclipse.jetty</groupId>
+        <artifactId>jetty-jmx</artifactId>
+        <version>${jetty.version}</version>
+      </dependency>
+
+     <dependency>
+        <groupId>org.eclipse.jetty</groupId>
+        <artifactId>jetty-deploy</artifactId>
+        <version>${jetty.version}</version>
+      </dependency>
+
+	<dependency>
+        <groupId>io.dropwizard.metrics</groupId>
+        <artifactId>metrics-core</artifactId>
+        <version>${metrics.version}</version>
+    </dependency>
+	
+	<dependency>
+		<groupId>io.dropwizard.metrics</groupId>
+		<artifactId>metrics-servlets</artifactId>
+		<version>${metrics.version}</version>
+	</dependency>
+	
+	<dependency>
+		<groupId>io.dropwizard.metrics</groupId>
+		<artifactId>metrics-jetty9</artifactId>
+		<version>${metrics.version}</version>
+	</dependency>
+		
+  </dependencies>
+
+  </dependencyManagement>
+
+  <properties>
+  
+    <this.scm.repo.name>openright-jee-server</this.scm.repo.name>
+  
+	<jetty.version>9.2.6.v20141205</jetty.version>
+	<javax.servlet.version>3.1.0</javax.servlet.version>
+	<metrics.version>3.1.0</metrics.version>
+	
+  </properties>
+</project>
