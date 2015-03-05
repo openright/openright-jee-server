@@ -14,7 +14,7 @@ This is a set of libraries.  In order to use them  a few classes must be created
 - TBD:  See plugins
 
 # Limitations and possibilities
-- This is only libraries for a basic container.  For serving JSP's, REST services, WAR files, integrating with databases, messaging middleware or other stuff this must be extended and the appropriate libraries added. (see Usage). Only static html works out of the box Do not add anything that isn't BASIC here. 
+- This is only libraries for a basic container.  For serving JSP's, REST services, WAR files, integrating with databases, messaging middleware or other stuff this must be extended and the appropriate libraries added. (see Usage). Only static html works out of the box.  Do not even try to add anything that isn't BASIC here. 
 
 - There are few or no restrictions on the type content that can be served.  You may deploy your own custom code as well as be use it to host thirdparty WAR applications.
 
