@@ -1,9 +1,9 @@
 # Summary
 
-re-usable set of libaries for building Jetty based applications.
+re-usable set of libaries for building basic jetty based application containers.
 
 # Usage
-This is a set of libraries.  In order to use them  a few classes must be created defining the structure and location of your application.  See the associated example (openright-jee-server-example) for starting points
+This is a set of libraries.  In order to use them a couple of additional classes must be created defining the structure and location of your application.  See the associated example (openright-jee-server-example) for starting points.
 
 # Features
 - Automatic JMX configuration (on http-port + 1)
