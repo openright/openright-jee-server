@@ -6,6 +6,7 @@ re-usable set of libaries for building basic jetty based application containers.
 This is a set of libraries.  In order to use them a couple of additional classes must be created defining the structure and location of your application.  See the associated example (openright-jee-server-example) for starting points.
 
 # Features
+- Servlet 3.x (including annotation configuration)
 - Automatic JMX configuration (on http-port + 1)
 - Automatic status and monitoring url (on http-port + 5, under http://<host>/status
   - Includes Health check, metrics, thread dump and ping 
