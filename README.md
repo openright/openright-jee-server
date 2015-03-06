@@ -20,7 +20,7 @@ This is a set of libraries.  In order to use them a couple of additional classes
 - There are few or no restrictions on the type content that can be served.  You may deploy your own custom code as well as be use it to host thirdparty WAR applications.
 
 # Security
-- Some care is taken to turn off unnecessary features (such as directory browsing in Jetty), and to turn on OWASP vulnerability checking.  However, the basic container does not include authentication, access control, cross origin checks, secure cookie handling, ddos mitigation or any kind of security feature you'd expect from a fully developed system.  You should take care to follow an appropriate SSDLC (Secure Software Development Life-cycle) to ensure you're understand what the above words mean and can take appropriate measures.
+- Some care is taken to turn off unnecessary features (such as directory browsing in Jetty), and to turn on OWASP vulnerability checking.  However, the basic container does not include authentication, access control, cross origin checks, secure cookie handling, ddos mitigation or any kind of security feature you'd expect from a fully developed system.  You should take care to follow an appropriate SSDLC (Secure Software Development Life-cycle) to ensure you're understand what the above words mean and take appropriate measures.
 
 # Dependencies
 - Jetty
