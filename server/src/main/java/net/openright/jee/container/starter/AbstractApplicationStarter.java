@@ -104,6 +104,15 @@ public abstract class AbstractApplicationStarter {
         if (configFile != null) {
             files.add(assertExists(configFile));
         }
+
+        String commonConfigFile = PropertyUtil.getProperty("common.propertyfile", "common.properties");
+        if (commonConfigFile != null) {
+            File file = new File(commonConfigFile);
+            if (file.exists()) {
+                files.add(file);
+            }
+        }
+
         return files;
     }
 
