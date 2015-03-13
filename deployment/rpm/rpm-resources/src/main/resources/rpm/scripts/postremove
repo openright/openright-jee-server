@@ -1,0 +1,10 @@
+#!/bin/bash
+# webapps is generated when the war is expanded, must be removed manually
+set -eu;
+
+APP_NAME=$(basename $RPM_INSTALL_PREFIX)
+
+if [ "$1" == "0" ]; then
+	chkconfig --del "${APP_NAME}"
+	rm -rf "$RPM_INSTALL_PREFIX/webapps"
+fi

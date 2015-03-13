@@ -1,0 +1,294 @@
+<?xml version="1.0"?>
+
+<project>
+    
+    <dependencyManagement>
+        <dependencies>
+
+            <dependency>
+                <groupId>${rpm.resource.bundle.groupId}</groupId>
+                <artifactId>${rpm.resource.bundle.artifactId}</artifactId>
+                <version>@project.version@</version>
+                <classifier>rpm</classifier>
+                <type>zip</type>
+            </dependency>
+        
+        </dependencies>
+    </dependencyManagement>
+    
+    <build>
+
+            <plugins>
+            
+                <plugin>
+                    <!-- Add local config files to rpm from server dependency -->
+                    <artifactId>maven-dependency-plugin</artifactId>
+                    <executions>
+                        <execution>
+                            <id>unpack</id>
+                            <phase>generate-resources</phase>
+                            <goals>
+                                <goal>unpack</goal>
+                            </goals>
+                            <configuration>
+                                <artifactItems>
+                                    <artifactItem>
+                                        <groupId>${rpm.resource.bundle.groupId}</groupId>
+                                        <artifactId>${rpm.resource.bundle.artifactId}</artifactId>
+                                        <classifier>rpm</classifier>
+                                        <type>zip</type>
+                                        <overWrite>true</overWrite>
+                                        <outputDirectory>${rpm.build.resource.directory}</outputDirectory>
+                                        <includes>*/**</includes>
+                                    </artifactItem>
+                                </artifactItems>
+                            </configuration>
+                        </execution>
+                    </executions>
+                </plugin>
+                
+                <plugin>
+                    <artifactId>maven-resources-plugin</artifactId>
+                    <executions>
+                      <execution>
+                        <id>copy-resources</id>
+                        <!-- here the phase you need -->
+                        <phase>prepare-package</phase>
+                        <goals>
+                          <goal>copy-resources</goal>
+                        </goals>
+                        <configuration>
+                          <outputDirectory>${rpm.build.template.directory}</outputDirectory>
+                          <resources>          
+                            <resource>
+                              <directory>${rpm.build.resource.directory}</directory>
+                              <filtering>true</filtering>
+                            </resource>
+                          </resources>              
+                        </configuration>            
+                      </execution>
+                    </executions>
+                  </plugin>
+                            
+                <plugin>
+                    <groupId>org.codehaus.mojo</groupId>
+                    <artifactId>rpm-maven-plugin</artifactId>
+                    <version>2.1.2</version>
+                    <executions>
+                        <execution>
+                            <goals>
+                                <goal>attached-rpm</goal>
+                            </goals>
+                        </execution>
+                    </executions>
+                    <configuration>
+                        <prefix>${rpm.app.home}</prefix>
+                        <name>${rpm.app.name}</name>
+                        <changelogFile>${rpm.changelog.file}</changelogFile>
+                        <distribution>${rpm.distribution.name}</distribution>
+                        <group>${rpm.group.name}</group>
+                        <license>${rpm.license.name}</license>
+                        <targetVendor />
+                        <defaultDirmode>500</defaultDirmode>
+                        <defaultFilemode>400</defaultFilemode>
+                        <defaultUsername>${rpm.app.user}</defaultUsername>
+                        <defaultGroupname>${rpm.app.group}</defaultGroupname>
+
+                        <defineStatements>
+                            <defineStatement>_unpackaged_files_terminate_build 0</defineStatement>
+                        </defineStatements>
+                        <mappings>
+                            <mapping>
+                                <directory>${rpm.app.home}/lib</directory>
+                                <dependency />
+                            </mapping>
+                            <mapping>
+                                <directory>${rpm.app.home}/bin</directory>
+                                <filemode>750</filemode>
+                                <sources>
+                                    <source>
+                                        <filter>true</filter>
+                                        <location>${rpm.build.template.directory}/bin</location>
+                                    </source>
+                                </sources>
+                            </mapping>
+                            <mapping>
+                                <directory>${rpm.app.home}/conf</directory>
+                                <configuration>true</configuration>
+                                <filemode>700</filemode>
+                                <sources>
+                                    <source>
+                                        <filter>true</filter>
+                                        <includes>
+                                            <include>*.*</include>
+                                        </includes>
+                                        <excludes>
+                                            <!-- treat following as binary config -->
+                                            <exclude>*.jks</exclude>
+                                            <exclude>*.p12</exclude>
+                                            <exclude>*.pfx</exclude>
+                                            <exclude>*.cer</exclude>
+                                        </excludes>
+                                        <location>${rpm.build.template.directory}/conf</location>
+                                    </source>
+                                    <source>
+                                        <filter>false</filter>
+                                        <includes>
+                                            <!-- treat following as binary config -->
+                                            <include>*.jks</include>
+                                            <include>*.p12</include>
+                                            <include>*.pfx</include>
+                                            <include>*.cer</include>
+                                            <include>README.txt</include>
+                                        </includes>
+                                        <location>${rpm.build.template.directory}/conf</location>
+                                    </source>
+                                </sources>
+                            </mapping>
+                            <mapping>
+                                <directory>/etc/init.d</directory>
+                                <directoryIncluded>false</directoryIncluded>
+                                <username>root</username>
+                                <groupname>root</groupname>
+                                <sources>
+                                    <softlinkSource>
+                                        <destination>${rpm.app.name}</destination>
+                                        <location>${rpm.app.home}/bin/app.init.d</location>
+                                    </softlinkSource>
+                                </sources>
+                            </mapping>
+                            <mapping>
+                                <directory>${rpm.app.home}/logs</directory>
+                                <sources>
+                                    <softlinkSource>
+                                        <location>${rpm.app.logdir}/${rpm.app.name}</location>
+                                    </softlinkSource>
+                                </sources>
+                            </mapping>
+                            <mapping>
+                                <directory>${rpm.app.logdir}</directory>
+                                <filemode>700</filemode>
+                            </mapping>
+                            <mapping>
+                                <directory>${rpm.app.logdir}/${rpm.app.name}</directory>
+                                <filemode>700</filemode>
+                            </mapping>
+                            <mapping>
+                                <directory>${rpm.work.dir}</directory>
+                                <filemode>700</filemode>
+                                <sources>
+                                    <source>
+                                        <filter>true</filter>
+                                        <location>${rpm.work.template.dir}</location>
+                                    </source>
+                                </sources>
+                            </mapping>
+                            <mapping>
+                                <directory>${rpm.app.home}/tmp</directory>
+                                <filemode>700</filemode>
+                            </mapping>
+                            <mapping>
+                                <directory>${rpm.app.home}/tmp/files</directory>
+                                <filemode>700</filemode>
+                            </mapping>
+                            <mapping>
+                                <!-- directory contains pid/lock file.  (see Linux guidelines file system guidelines) -->
+                                <directory>/var/run/${rpm.app.user}</directory>
+                                <filemode>700</filemode>
+                            </mapping>
+                            <mapping>
+                                <directory>${rpm.app.shared.configdir}</directory>
+                                <configuration>true</configuration>
+                                <filemode>700</filemode>
+                                <sources>
+                                    <source>
+                                        <filter>true</filter>
+                                        <location>${rpm.build.template.directory}/shared/conf</location>
+                                    </source>
+                                </sources>
+                            </mapping>
+                        </mappings>
+
+                        <!-- Rpm Installation Scripts -->
+                        <preinstallScriptlet>
+                            <script>test ! -x /etc/init.d/${rpm.app.name} || /etc/init.d/${rpm.app.name} stop; id -u "${rpm.app.user}" >/dev/null 2>&amp;1 || /usr/sbin/useradd -r ${rpm.app.user}</script>
+                        </preinstallScriptlet>
+                        <postinstallScriptlet>
+                            <scriptFile>${rpm.script.postinstall}</scriptFile>
+                            <fileEncoding>utf-8</fileEncoding>
+                        </postinstallScriptlet>
+                        <preremoveScriptlet>
+                            <script>test ! -f /etc/init.d/${rpm.app.name} ||
+                                /etc/init.d/${rpm.app.name} stop</script>
+                        </preremoveScriptlet>
+                        <postremoveScriptlet>
+                            <scriptFile>${rpm.build.template.directory}/scripts/postremove</scriptFile>
+                            <fileEncoding>utf-8</fileEncoding>
+                        </postremoveScriptlet>
+
+                    </configuration>
+                </plugin>
+
+            </plugins>
+
+    </build>
+
+    <properties>
+    
+        <!-- OVERRIDE THESE SETTINGS IN APPLICATION -->
+        <rpm.distribution.name>openright</rpm.distribution.name>
+        <rpm.group.name>Applications/OpenRight</rpm.group.name>
+        <rpm.app.user>openright</rpm.app.user>
+        <rpm.app.group>openright</rpm.app.group>
+        <rpm.app.namespace>net.openright</rpm.app.namespace>
+        <rpm.server.starter.class />
+        
+        <!-- Distinguished name to use in generated keystore (override with own organizatio name) -->
+        <rpm.javakeystore.distinguishedname>CN=OpenRight JMX, OU=OpenRight JMX, O=OpenRight, C=NO</rpm.javakeystore.distinguishedname>
+        
+        <!-- OFTEN CHANGED SETTINGS -->
+        <rpm.server.default.port>10080</rpm.server.default.port>
+        <rpm.jdk.requirement>1.8*&amp;1.8.0_25+</rpm.jdk.requirement>
+        <rpm.license.name>Apache Public License, 2.0</rpm.license.name>
+        <rpm.changelog.file>src/changelog</rpm.changelog.file>
+        <rpm.app.jvm.opts>-Xms256m</rpm.app.jvm.opts>
+		
+        <!-- RARELY CHANGED SETTINGS -->
+        
+        <!-- Location to install package (see Linux guidelines for packaged software)-->
+        <rpm.install.prefix.root>/opt</rpm.install.prefix.root>
+        
+        <!-- Location of template for rpm structure -->
+        <rpm.build.template.directory>${project.build.directory}/rpm-template</rpm.build.template.directory>
+				
+		<!-- location of scripts to bundle in rpm (will be added to template directory before rpm is compiled) -->
+        <rpm.build.resource.directory>${project.build.directory}/rpm-resources</rpm.build.resource.directory>
+		
+        <rpm.app.name>${project.artifactId}</rpm.app.name>
+
+        <rpm.app.home>${rpm.install.prefix.root}/${rpm.app.name}</rpm.app.home>
+        <rpm.work.dir>${rpm.app.home}/data</rpm.work.dir>
+        <rpm.work.template.dir>${rpm.build.template.directory}/data</rpm.work.template.dir>
+        
+        <!-- Log directory (see Linux guidelines for packaged software) -->
+        <rpm.app.logdir>/var/log/${rpm.app.user}</rpm.app.logdir>
+        
+        <rpm.server.default.contextpath>/${rpm.app.user}</rpm.server.default.contextpath>
+        <rpm.server.default.security.realm>${rpm.app.user}-test-realm</rpm.server.default.security.realm>
+        
+		 <!-- artifact containing scripts and other config files to deploy -->
+        <rpm.resource.bundle.groupId>net.openright.java.server.deploy.rpm</rpm.resource.bundle.groupId>
+        <rpm.resource.bundle.artifactId>openright-deploy-rpm-resources</rpm.resource.bundle.artifactId>
+
+        <!--
+            Properties below have hard dependencies in postinstall, BE CAREFUL IF CHANGING 
+        -->
+        <rpm.script.postinstall>${rpm.build.template.directory}/scripts/postinstall</rpm.script.postinstall>
+        
+        <rpm.app.shared.dir>${rpm.install.prefix.root}/${rpm.app.user}</rpm.app.shared.dir>
+        <rpm.app.shared.configdir>${rpm.app.shared.dir}/conf</rpm.app.shared.configdir>
+        <rpm.app.configdir>${rpm.app.home}/conf</rpm.app.configdir>
+        
+    </properties>
+
+</project>

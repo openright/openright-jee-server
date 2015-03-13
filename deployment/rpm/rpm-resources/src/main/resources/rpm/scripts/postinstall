@@ -1,0 +1,142 @@
+#!/bin/bash
+
+umask 027
+set -eu
+
+SHELL=/bin/bash
+
+# Local postinstall script (specified by application)
+POSTINSTALL_LOCAL="$RPM_INSTALL_PREFIX/bin/postinstall.local"
+
+# Application name (derived from installation folder)
+APP_NAME=$(basename $RPM_INSTALL_PREFIX)
+
+# Log files location
+LOG_DIR="$RPM_INSTALL_PREFIX/logs"
+
+# Initialize classpaths
+SERVER_LIB_DIR="$RPM_INSTALL_PREFIX/lib"
+SERVER_CLASSPATH=$(JARS=("${SERVER_LIB_DIR?}"/*.jar); IFS=:; echo "${JARS[*]}")
+WAR_FILES=$(WARS=("${SERVER_LIB_DIR?}"/*.war); IFS=:; echo "${WARS[*]}")
+APP_CLASSPATH=${SERVER_CLASSPATH?}:${WAR_FILES}
+
+# Find owner/group used to create rpm under
+OWNER=`stat -c '%U' $SERVER_LIB_DIR`
+GROUP=`stat -c '%G' $SERVER_LIB_DIR`
+
+# Shared application directory
+SHARED_DIR=${RPM_INSTALL_PREFIX}/../${OWNER}
+
+# Configuration location
+APP_CONFIGDIR="$RPM_INSTALL_PREFIX/conf"
+APP_ENVFILE="$APP_CONFIGDIR/env.rc"
+source ${APP_ENVFILE?}
+
+# Local configuration overlays (if present)
+APP_ENVFILE_LOCAL="$APP_CONFIGDIR/env.rc.local"
+[[ ! -f "$APP_ENVFILE_LOCAL" ]] || source "$APP_ENVFILE_LOCAL"
+
+#Locate java based on expected location
+echo "Finding JAVA_HOME"
+JAVA_HOME=$(readlink -f /usr/bin/javac | sed "s:/bin/javac::")
+echo "Found JAVA_HOME=$JAVA_HOME"
+
+if [ -d "/usr/java/default" ]; then
+  # Default java command (including required version parameter)
+  JAVA_CMD="$JAVA_HOME/bin/java -version:${JAVA_VERSION_MINIMUM}"
+else 
+  # distro uses non-standard location for java, cannot rely on minimum version
+  JAVA_CMD="$JAVA_HOME/bin/java"
+fi
+
+function init_app() {
+	function check_preconditions() {
+	    function check_java(){
+	    	command -v ${JAVA_CMD?} &>/dev/null || { echo "Missing java, check java is installed and \$JAVA_HOME/bin er i PATH" >&2; exit 1;}
+	    }
+	    
+		function check_war_file() {
+			  local warfiles=(`ls ${SERVER_LIB_DIR?}/*.war`)
+			  len=${#warfiles[*]}
+			  if [ $len -lt 1 ]; then
+			    echo "Could not find any war file, continuing anyway but if this isn't what you intended it may fail later" >&2; exit 1;
+			  fi
+		}
+		
+  		check_war_file;
+  		check_java;
+	}
+	
+	# Unpack war file
+    function init_war_file(){
+		WEBAPP_DIR="$RPM_INSTALL_PREFIX/webapps"
+    	/bin/rm -rf "$WEBAPP_DIR"
+     	(cd $RPM_INSTALL_PREFIX && ${JAVA_CMD?} -cp "${APP_CLASSPATH}" -Dapp.war.files="${WAR_FILES}" ${APP_STARTER_CLASS?} extract "$@")
+		[[ -d "$WEBAPP_DIR" ]] && find "$WEBAPP_DIR" -type f -exec chmod 640 {} + || true
+     	chown -R $OWNER:$GROUP $RPM_INSTALL_PREFIX/logs/
+    }
+    
+    # TODO - remove when we have proper key management
+	# Generates a shared jmx keystore for exposing jmx over ssl for monitoring
+    function init_jmxkeystore(){
+        APP_KEYSTORE="$SHARED_DIR/conf/jmx.keystore"
+
+        function create_keystore() {
+            # Must add password 4 times
+            # pass parenthesis - running as sub-shell
+            declare keystorepasswd=$1
+
+            ( export IFS=/;
+              local passwd=$(for ((i=1;i<5;i++));do echo "$keystorepasswd"; done;);
+              
+              "${JAVA_HOME?}/bin/keytool" -genkey -alias jmx -keysize 1024 -validity 1095 -keystore "$APP_KEYSTORE" \
+                      -dname "${rpm.javakeystore.distinguishedname}" <<< $passwd;
+                      
+              "${JAVA_HOME?}/bin/keytool" -exportcert -alias jmx -keystore "$APP_KEYSTORE" -file "$SHARED_DIR/conf/jmx.cer" <<< $passwd;
+            )              
+        };
+        
+        function init_keystore() {
+            if [[ ! -f "${APP_KEYSTORE?}" ]];then
+              echo -e "Java keystore is not initialized in ${APP_KEYSTORE?}.  Initializing...\n"
+              create_keystore "changeit"
+            fi
+        };
+        
+        init_keystore;
+    };
+    
+    check_preconditions;
+    init_jmxkeystore;
+    init_war_file;
+	
+	# Fix ownership and permission mode on files generated during install
+	chown -R $OWNER:$GROUP "$RPM_INSTALL_PREFIX"    
+    chown -R $OWNER:$GROUP "$SHARED_DIR"
+	
+	[[ -d "$APP_CONFIGDIR" ]] && find $APP_CONFIGDIR -type f -exec chmod 640 {} + 
+	
+	# inverted logic so it won't give exit status 1 if dir does not exists (but let find still return proper exit status)
+	# Fix permissions on shared config directory
+	[[ ! -d "$SHARED_DIR/conf" ]] || find $SHARED_DIR/conf -type f -exec chmod 640 {} +
+	
+	# Fix permissions on shared config jmx files, if present
+	[[ ! -d "$SHARED_DIR/conf" ]] || find $SHARED_DIR/conf/jmx* -type f -exec chmod 400 {} +
+	
+	# Fix permissions on work folder (if exists - its defaulted to "work")
+	[[ ! -d "$RPM_INSTALL_PREFIX/work" ]] || find $RPM_INSTALL_PREFIX/work -type f -exec chmod 640 {} +
+	
+	# Run application specific postinstall script, if found in <application>/bin folder
+	[[ ! -f "$POSTINSTALL_LOCAL" ]] || ${SHELL?} "$POSTINSTALL_LOCAL" 
+	
+	# Add to service list. Runlevels configured in <application>/bin/app.init.d
+
+        if [ -x "$(command -v update-rc.d >/dev/null 2>&1)" ]; then
+           update-rc.d $APP_NAME defaults
+        elif [ -x "$(command -v chkconfig >/dev/null 2>&1)" ]; then
+	   chkconfig --add $APP_NAME
+        fi
+	
+}
+ 
+init_app;
