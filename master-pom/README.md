@@ -9,7 +9,7 @@ Configures basic dependencies and plugins used by all extension modules
 - Basic reporting configuration for simplified reports
 
 # Basic dependencies
-- SLF4J/LogBac
+- SLF4J/LogBack
 
 # Test dependencies
 - Junit
